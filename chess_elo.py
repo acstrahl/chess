@@ -40,6 +40,10 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
     def get_puzzle_rush():
         rush_score = data.get("puzzle_rush", {}).get("best", {}).get("score")
         return f"Puzzle Rush: {rush_score}" if rush_score is not None else None
+    
+    def get_tactics_rating():
+        tactics_rating = data.get("tactics", {}).get("highest", {}).get("rating")
+        return f"Rated Puzzles: {tactics_rating}" if tactics_rating is not None else None
 
     type_map = {
         "bullet": lambda: get_rating("chess_bullet", "Bullet"),
@@ -48,7 +52,9 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
         "daily": lambda: get_rating("chess_daily", "Daily"),
         "rush": get_puzzle_rush,
         "puzzlerush": get_puzzle_rush,
-        "puzzles": lambda: get_rating("tactics", "Puzzles")
+        "puzzles": get_tactics_rating,
+        "tactics": get_tactics_rating,
+        "ratedpuzzles": get_tactics_rating,
     }
 
     if type and type in type_map:
@@ -61,7 +67,7 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
         get_rating("chess_blitz", "Blitz"),
         get_rating("chess_rapid", "Rapid"),
         get_rating("chess_daily", "Daily"),
-        get_rating("tactics", "Puzzles"),
+        get_tactics_rating,
         get_puzzle_rush(),
     ]
     results_clean = [r for r in results if r]
