@@ -67,7 +67,7 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
         get_rating("chess_blitz", "Blitz"),
         get_rating("chess_rapid", "Rapid"),
         get_rating("chess_daily", "Daily"),
-        get_tactics_rating,
+        get_tactics_rating(),
         get_puzzle_rush(),
     ]
     results_clean = [r for r in results if r]
