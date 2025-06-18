@@ -43,7 +43,7 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
     
     def get_tactics_rating():
         tactics_rating = data.get("tactics", {}).get("highest", {}).get("rating")
-        return f"Rated Puzzles: {tactics_rating}" if tactics_rating is not None else None
+        return f"Rated Puzzles (highest): {tactics_rating}" if tactics_rating is not None else None
 
     type_map = {
         "bullet": lambda: get_rating("chess_bullet", "Bullet"),
@@ -75,7 +75,7 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
     if not results_clean:
         return f"No rating data found for {username}."
 
-    return f"{username}'s ratings:\n" + "\n".join(results_clean)
+    return f"{username}'s current ratings:\n" + "\n".join(results_clean)
 
 @app.get("/", response_class=PlainTextResponse)
 def root():
