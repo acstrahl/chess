@@ -70,3 +70,25 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
         return f"No rating data found for {username}."
 
     return f"{username}'s ratings — " + ", ".join(results_clean)
+
+@app.get("/", response_class=PlainTextResponse)
+def root():
+    return "Chess ELO Bot API is running. Use /elo/{username} to see ratings. Visit /about for more info."
+
+@app.get("/about", response_class=PlainTextResponse)
+def about():
+    return """Chess ELO Bot API by robotsforbrunch
+            This API fetches chess ratings from Chess.com for a given username.
+
+            Usage:
+            /elo/{username}               → All ratings
+            /elo/{username}?type=rapid    → Just rapid rating
+            /elo/{username}?type=blitz    → Just blitz
+            /elo/{username}?type=daily    → Daily
+            /elo/{username}?type=rush     → Puzzle Rush score
+            /elo/{username}?type=bullet   → Bullet rating
+            /elo/{username}?type=puzzles  → Tactics puzzles rating
+
+            Rate limit: 10 requests per minute per IP
+            """
+
