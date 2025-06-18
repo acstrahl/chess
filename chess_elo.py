@@ -48,7 +48,7 @@ def get_elo(request: Request, username: str, type: Optional[str] = Query(default
         "daily": lambda: get_rating("chess_daily", "Daily"),
         "rush": get_puzzle_rush,
         "puzzlerush": get_puzzle_rush,
-        "puzzles": lamba: get_rating("tactics", "Puzzles")
+        "puzzles": lambda: get_rating("tactics", "Puzzles")
     }
 
     if type and type in type_map:
