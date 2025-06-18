@@ -1,12 +1,25 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 import requests
 from fastapi.responses import PlainTextResponse
 from typing import Optional
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 app = FastAPI()
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return PlainTextResponse(
+        "You're sending commands too fast! 🧠⏱️ Try again in a few seconds.",
+        status_code=429
+    )
 
 @app.get("/elo/{username}", response_class=PlainTextResponse)
-def get_elo(username: str, type: Optional[str] = Query(default=None)):
+@limiter.limit("10/minute") 
+def get_elo(request: Request, username: str, type: Optional[str] = Query(default=None)):
     url = f"https://api.chess.com/pub/player/{username}/stats"
     headers = {
         "User-Agent": "TwitchEloBot/1.0 (contact: robotsforbrunch@email.com)"
@@ -33,9 +46,9 @@ def get_elo(username: str, type: Optional[str] = Query(default=None)):
         "blitz": lambda: get_rating("chess_blitz", "Blitz"),
         "rapid": lambda: get_rating("chess_rapid", "Rapid"),
         "daily": lambda: get_rating("chess_daily", "Daily"),
-        "puzzle": get_puzzle_rush,
         "rush": get_puzzle_rush,
         "puzzlerush": get_puzzle_rush,
+        "puzzles": lamba: get_rating("tactics", "Puzzles")
     }
 
     if type and type in type_map:
@@ -48,6 +61,7 @@ def get_elo(username: str, type: Optional[str] = Query(default=None)):
         get_rating("chess_blitz", "Blitz"),
         get_rating("chess_rapid", "Rapid"),
         get_rating("chess_daily", "Daily"),
+        get_rating("tactics", "Puzzles"),
         get_puzzle_rush(),
     ]
     results_clean = [r for r in results if r]
